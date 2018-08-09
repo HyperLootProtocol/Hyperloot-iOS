@@ -20,7 +20,7 @@ class WalletProvider {
         if let wallet = keystore.recentlyUsedWallet ?? keystore.wallets.first {
             completion(wallet, nil)
         } else {
-            importPublicWallet(completion: completion)
+            createNewWallet(completion: completion)
         }
     }
     
@@ -42,26 +42,6 @@ class WalletProvider {
             case .failure(let error):
                 completion(nil, error)
                 break
-            }
-        }
-    }
-    
-    public func importPublicWallet(completion: @escaping ((WalletInfo?, Error?) -> Void)) {
-        let addressEipString = "0x1e4a18fa3ce2095f89b6a925669c33e149c537bc"
-        guard let address = Address(string: addressEipString) else {
-            return
-        }
-        keystore.importWallet(type: ImportType.watch(address: address)) { [weak self] (result) in
-            guard let strongSelf = self else {
-                return
-            }
-            switch result {
-            case .success(let w):
-                let wallet = WalletInfo(wallet: w, info: WalletObject.from(w))
-                let initialName = "\(addressEipString)"
-                strongSelf.keystore.store(object: wallet.info, fields: [.name(initialName)])
-            case .failure(let error):
-                completion(nil, error)
             }
         }
     }
